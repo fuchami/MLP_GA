@@ -17,6 +17,8 @@ from keras.utils import np_utils
 from keras.utils.vis_utils import plot_model
 from keras.optimizers import SGD, Adam
 
+import cma
+
 def plot_history(history):
     # 精度の履歴をプロット
         plt.plot(history.history['acc'])
@@ -47,6 +49,28 @@ def mlp_model(num_classes):
     
     return model
 
+def get_solution(weights):
+    return np.concatenate([weight.reshape(-1) for weight in weights])
+
+def set_weights(solution,model):
+    model.set_weights([solution[1:1+np.prod(shape)].reshape(shape) for shape in shapes])
+
+def get_action(observation, model):
+    return np.argmax(model.predict_on_batch(observation)) 
+
+def get_reward():
+    Reward = 0
+    done = False
+    while not done:
+        Reward += reward
+
+    return Reward
+
+def f(x, model):
+    set_weights(x, model)
+    Reward = get_reward()
+    return -Reward
+
 def main(args):
     # load cifar20 datasets
     (x_train, y_train),(x_test, y_test) = cifar10.load_data()
@@ -61,9 +85,12 @@ def main(args):
     model = mlp_model(args.numclasses)
     model.summary()
     plot_model(model, to_file='./images/mlp_model.png', show_shapes=True)
-    
-    opt = SGD()
 
+    x0 = get_solution(model.get_weights())
+    cma.fmin(f, x0, 10.0, {"maxfevals": 1e4, "tolx":0, "tolfun": 0, "tolfunhist": 0})
+    
+
+    """
     model.compile(loss='categorical_crossentropy',
                 optimizer=opt,metrics=['accuracy'])
 
@@ -72,6 +99,7 @@ def main(args):
                 epochs=args.epochs,
                 verbose=1,
                 validation_data=(x_test,y_test))
+    """
 
     score = model.evaluate(x_test, y_test, verbose=0)
     print('test loss: ', score[0])
