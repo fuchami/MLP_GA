@@ -16,8 +16,8 @@ from keras.layers import Dense, Activation, Input
 from keras.utils.vis_utils import plot_model
 from keras.optimizers import SGD, Adam
 
-def mlp_model(num_classes,img_size):
-    inputs = Input( shape=(img_size*img_size))
+def mlp_model(num_classes):
+    inputs = Input( shape=( 32*32, ))
 
     x = Dense(128, activatoin='relu')(inputs)
     x = Dense(64, activation='relu')(x)
@@ -30,6 +30,12 @@ def mlp_model(num_classes,img_size):
 def main(args):
     # load cifar20 datasets
     (x_train, y_train),(x_test, y_test) = cifar10.load_data()
+    x_train = x_train.reshape(50000, 32*32*3).astype('float32') / 255.0
+    x_test = x_test.reshape(10000, 32*32*3).astype('float32')/ 255.0
+    
+    y_train = np_utils.to_categorical(y_train, args.numclasses)
+    y_test = np_utils.to_categorical(y_test, args.numclasses)
+    
 
     # load model
     model = mlp_model(args.numclasses, args.imgsize)
@@ -59,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', '-e', type=int, default=100)
     parser.add_argument('--numclasses', '-c', type=int, default=10)
     parser.add_argument('--batchsize', '-b', type=int, default=64)
-    parser.add_argument('--imgsize', '-s', type=int, default=32)
+    parser.add_argument('--imgsize', '-s', default=32)
     args = parser.parse_args()
 
     main(args)
