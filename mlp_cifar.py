@@ -53,6 +53,7 @@ def get_solution(weights):
     return np.concatenate([weight.reshape(-1) for weight in weights])
 
 def set_weights(solution,model):
+    print(solution)
     model.set_weights([solution[1:1+np.prod(shape)].reshape(shape) for shape in shapes])
 
 def get_action(observation, model):
