@@ -5,7 +5,7 @@ mlp class
 """
 import keras
 from keras.layers import Activation, Dropout, BatchNormalization, Dense, Input, Flatten
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras.optimizers import SGD, Adam
 from keras.datasets import mnist
 from keras.utils.vis_utils import plot_model
@@ -17,20 +17,20 @@ class MLP():
     def __init__(self, dense1=512, dense2=512,
                 drop1=0.3, drop2=0.2,
                 batch_size=12,
-                epochs=10,
+                activation='relu',
                 validation_split=0.1):
         
         self.dense1 = dense1
         self.dense2 = dense2
         self.drop1  = drop1
         self.drop2  = drop2
-        self.epochs = epochs
+        self.activation = activation
         self.batch_size = batch_size
         self.validation_split = validation_split
 
         # load mnist data
         print(" load mnist data")
-        self._x_train, self._x_test, self._y_train, self._y_test = self.load_mnist_data()
+        self.x_train, self.x_test, self.y_train, self.y_test = self.load_mnist_data()
         # build mlp model
         print("  build mlp model")
         self.model = self.mlp_model()
@@ -41,19 +41,19 @@ class MLP():
         dense2:\t{2}
         drop1:\t{3}
         drop2:\t{4}
-        epochs:\t{5}
+        activation:\t{5}
         batch_size:\{6}
-        """.format{self.validation_split,
+        """.format(self.validation_split,
                     self.dense1,
                     self.dense2,
                     self.drop1,
                     self.drop2,
-                    self.epochs,
+                    self.activation,
                     self.batch_size
-                    }
+        )
         print(params)
         
-    def plot_history(history):
+    def plot_history(self, history):
         # 精度の履歴をプロット
             plt.plot(history.history['acc'])
             plt.plot(history.history['val_acc'])
@@ -76,23 +76,37 @@ class MLP():
         (x_train, y_train),(x_test, y_test) = mnist.load_data()
 
         x_train = x_train.reshape(60000, 784).astype('float32')/255
-        x_test = x_test.reshape(60000, 784).astype('float32')/255
+        x_test = x_test.reshape(10000, 784).astype('float32')/255
         
         y_train = keras.utils.to_categorical(y_train, 10)
         y_test = keras.utils.to_categorical(y_test, 10)
 
-        return x_train, y_train, x_test, y_test
+        return x_train, x_test, y_train, y_test
     
     def mlp_model(self):
-        inputs =Input( shape=(784, ))
+        """
+        inputs =Input( shape=(784,))
 
-        x = Dense(self.dense1, activatio='sigmoid')(inputs)
+        x = Dense(self.dense1, activation='sigmoid')(inputs)
         x = Dropout(self.drop1)(x)
         x = Dense(self.dense2, activation='sigmoid')(x)
         x = Dropout(self.drop2)(x)
 
         outputs = Dense(10, activation='softmax')(x)
         model = Model(inputs=inputs, outputs=outputs)
+        """
+
+        model = Sequential()
+        model.add(Dense(self.dense1, input_shape=(784,)))
+        model.add(Activation(self.activation))
+        model.add(Dropout(self.drop1))
+
+        model.add(Dense(self.dense2))
+        model.add(Activation(self.activation))
+        model.add(Dropout(self.drop2))
+
+        model.add(Dense(10))
+        model.add(Activation('softmax'))
 
         return model
 
@@ -100,19 +114,19 @@ class MLP():
         early_stopping = EarlyStopping(patience=0, verbose=1)
 
         self.model.compile(loss='categorical_crossentropy',
-                            optimizer=Adan(),
+                            optimizer=SGD(),
                             metrics=['accuracy'])
         self.model.summary()
 
         history = self.model.fit(self.x_train, self.y_train,
                 batch_size=self.batch_size,
-                epochs=self.epochs,
+                epochs=70,
                 validation_split=self.validation_split,
                 callbacks=[early_stopping])
 
-        self.plot_history(history)
+        #self.plot_history(history)
         
-    def mnits_evaluate():
+    def mlp_evaluate(self):
         self.train()
 
         evaluate = self.model.evaluate(self.x_test, self.y_test, 

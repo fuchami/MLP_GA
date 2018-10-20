@@ -2,6 +2,19 @@
 """
 遺伝的アルゴリズムを用いてNNの
 ハイパーパラメータの最適解を探索
+
+CXPB: クロスオーバーの確率
+MUTPB: 個々の突然変異の確率
+NGEN : 生成ループの数
+
+individual: 設計変数の1セット
+population: 現世代の個体集合
+offspring : 次世代の個体集合
+fitness   : 適応度
+selection : 現世代から次世代への淘汰
+crossover : 交叉・2個体間の遺伝子の入れ替え
+mutation  : 突然変異
+
 """
 
 import numpy as np
@@ -17,8 +30,8 @@ def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
 
     print("start of evolution")
 
-    fitness = list(map(toolbox.evaluate, pop))
-    for ind, fit in zip(pop, fitness):
+    fitnesses = list(map(toolbox.evaluate, pop))
+    for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
     print("  Evaliated %i individuals" % len(pop))
 
@@ -42,10 +55,10 @@ def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
                 del mutant.fitness.values
 
         try:
-            invalid_ind = [ind for ind in offspring if not ind.fitness.]
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
             fitness = map(toolbox.evaluate, invalid_ind)
-            for ind, fit in zip(invalid_ind, fitness):
-                ind.fitnes.values = fit
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
         except AssertionError:
             pass
         
@@ -54,17 +67,17 @@ def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
         pop[:] = offspring
 
         try:
-            fits = [ind.fitnes.values[0] for ind in pop]
+            fits = [ind.fitness.values[0] for ind in pop]
 
             length = len(pop)
             mean = sum(fits)/length
             sum2 = sum(x*x for x in fits)
             std = abs(sum2 / length - mean**2)**0.5
 
-            print("  Min %s", % min(fits))
-            print("  Max %s", % max(fits))
-            print("  Avg %s", % mean)
-            print("  Min %s", % std)
+            print("  Min %s" % min(fits))
+            print("  Max %s" % max(fits))
+            print("  Avg %s" % mean)
+            print("  Std %s" % std)
         except IndexError:
             pass
     
@@ -79,59 +92,54 @@ def run_mlp(bounds):
                     dense2=bounds[1],
                     drop1=bounds[2],
                     drop2=bounds[3],
-                    batch_size=bounds[4]
-                    epochs=bounds[5],
+                    batch_size=bounds[4],
+                    activation=bounds[5],
                     validation_split=bounds[6]
                     )
 
-    mnist_evaluation = _mlp.mnist_evaluate()
+    mnist_evaluation = _mlp.mlp_evaluate()
     print(mnist_evaluation)
     
     return mnist_evaluation[0],
     
-def main():
 
-    # define Genetic Algorithm
-    #creator
-    creator.create('FitnessMax', base.Fitness, weights=(-1.0,))
-    creator.create('Individual', list, fitness= creator.FitnessMax)
+# define Genetic Algorithm
+#creator
+creator.create('FitnessMax', base.Fitness, weights=(-1.0,))
+creator.create('Individual', list, fitness= creator.FitnessMax)
 
-    # defining attributes for individual
-    toolbox = base.Toolbox()
+# defining attributes for individual
+toolbox = base.Toolbox()
 
-    # neuron size 
-    toolbox.register("dense1", random.choice, (64, 128, 256, 512, 1024))
-    toolbox.register("dense2", random.choice, (64, 128, 256, 512, 1024))
+# neuron size 
+toolbox.register("dense1", random.choice, (64, 128, 256, 512, 1024))
+toolbox.register("dense2", random.choice, (64, 128, 256, 512, 1024))
 
-    # dropout late
-    toolbox.register("drop1", random.uniform, 0.0, 0.5)
-    toolbox.register("drop2", random.uniform, 0.0, 0.5)
+# dropout late
+toolbox.register("drop1", random.uniform, 0.0, 0.5)
+toolbox.register("drop2", random.uniform, 0.0, 0.5)
 
-    # trainig
-    toolbox.register("batch_size", random.choice, (10, 100, 500))
-    toolbox.register("epochs", random.choice, (10, 30, 50, 100))
-    toolbox.register("validation_split", random.uniform, 0.0, 0.6)
+# trainig
+toolbox.register("batch_size", random.choice, (16, 32, 64, 128, 256, 512))
+toolbox.register("activation", random.choice, ('sigmoid', 'relu'))
+toolbox.register("validation_split", random.uniform, 0.0, 0.6)
 
-    # registar attributes to individual
-    toolbox = register('individual', tools.initCycle, creator.Individual,
-                        (toolbox.dense1, toolbox.dense2,
-                        toolbox.drop1, toolbox.drop2,
-                        toolbox.batch_size, toolbox.epochs, toolbox.validation_split),
-                        n = 1)
+# registar attributes to individual
+toolbox.register('individual', tools.initCycle, creator.Individual,
+                    (toolbox.dense1, toolbox.dense2,
+                    toolbox.drop1, toolbox.drop2,
+                    toolbox.batch_size, toolbox.activation, toolbox.validation_split),
+                    n = 1)
 
-    # individual to pupolation
-    toolbox.register('population', toolbox.initRepeat, list, toolbox.individual)
+# individual to pupolation
+toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 
-    # evolution
-    toolbox.register('mate', tools.cxTwoPoint)
-    toolbox.register('mutate', tools.mutFlipBit, indpb = 0.05)
-    toolbox.register('select', tools.selTournament, tournsizee=3)
-    toolbox.register('evaluate', run_mlp)
+# evolution
+toolbox.register('mate', tools.cxTwoPoint)
+toolbox.register('mutate', tools.mutFlipBit, indpb = 0.05)
+toolbox.register('select', tools.selTournament, tournsize=3)
+toolbox.register('evaluate', run_mlp)
 
-
-
-
-if __name__ == '__main__':
-    main()
+best_int = genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=10 )
 
 
