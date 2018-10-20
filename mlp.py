@@ -24,12 +24,34 @@ class MLP():
         self.dense2 = dense2
         self.drop1  = drop1
         self.drop2  = drop2
-        self.epoch  = epochs
+        self.epochs = epochs
         self.batch_size = batch_size
         self.validation_split = validation_split
 
+        # load mnist data
+        print(" load mnist data")
         self._x_train, self._x_test, self._y_train, self._y_test = self.load_mnist_data()
-        self.model = self.mlp_mnist()
+        # build mlp model
+        print("  build mlp model")
+        self.model = self.mlp_model()
+
+        params = """
+        validation_split:\t{0}
+        dense1:\t{1}
+        dense2:\t{2}
+        drop1:\t{3}
+        drop2:\t{4}
+        epochs:\t{5}
+        batch_size:\{6}
+        """.format{self.validation_split,
+                    self.dense1,
+                    self.dense2,
+                    self.drop1,
+                    self.drop2,
+                    self.epochs,
+                    self.batch_size
+                    }
+        print(params)
         
 
     def load_mnist_data(self):
@@ -43,15 +65,32 @@ class MLP():
 
         return x_train, y_train, x_test, y_test
     
-    def mlp_mnist():
+    def mlp_model(self):
         inputs =Input( shape=(784, ))
 
-        x = Dense(512, activatio='sigmoid')(inputs)
-        x = Dropout(0.5)(x)
-        x = Dense(64, activation='sigmoid')(x)
-        x = Dropout(0.5)(x)
+        x = Dense(self.dense1, activatio='sigmoid')(inputs)
+        x = Dropout(self.drop1)(x)
+        x = Dense(self.dense2, activation='sigmoid')(x)
+        x = Dropout(self.drop2)(x)
 
         outputs = Dense(10, activation='softmax')(x)
         model = Model(inputs=inputs, outputs=outputs)
 
         return model
+
+    def train(self):
+        early_stopping = EarlyStopping(patience=0, verbose=1)
+
+        self.model.summary()
+        self.model.fit(self.x_train, self.y_train,
+                batch_size=self.batch_size,
+                epochs=self.epochs,
+                validation_split=self.validation_split,
+                callbacks=[early_stopping])
+        
+    def mnits_evaluate():
+        self.train()
+
+        evaluate = self.model.evaluate(self.x_test, self.y_test, 
+                                    batch_size = self.batch_size, verbose=0)
+        return evaluate

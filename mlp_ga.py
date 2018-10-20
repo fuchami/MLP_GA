@@ -9,16 +9,8 @@ import argparse
 import matplotlib.pyplot as plt
 import random
 
-import keras
-from keras.layers import Activation, Dropout, BatchNormalization, Dense, Input, Flatten
-from keras.models import Model
-from keras.optimizers import SGD, Adam
-from keras.datasets import mnist
-from keras.utils.vis_utils import plot_model
-from keras.utils import np_utils
-from keras.callbacks import EarlyStopping
-
 from deap import base, creator, tools, algorithms
+
 
 def plot_history(history):
     # 精度の履歴をプロット
@@ -38,53 +30,6 @@ def plot_history(history):
         plt.ylabel('loss')
         plt.legend(['loss', 'val_loss'], loc='lower right')
         plt.show()
-
-def load_mnist_data():
-    (x_train, y_train),(x_test, y_test) = mnist.load_data()
-
-    x_train = x_train.reshape(60000, 784).astype('float32')/255
-    x_test = x_test.reshape(60000, 784).astype('float32')/255
-    
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
-
-    return x_train, y_train, x_test, y_test
-    
-
-def mlp_mnist():
-    inputs =Input( shape=(784, ))
-
-    x = Dense(512, activatio='sigmoid')(inputs)
-    x = Dropout(0.5)(x)
-    x = Dense(64, activation='sigmoid')(x)
-    x = Dropout(0.5)(x)
-
-    outputs = Dense(10, activation='softmax')(x)
-    model = Model(inputs=inputs, outputs=outputs)
-
-    return model
-
-def train():
-    early_stopping = EarlyStopping(patience=0, verbose=1)
-
-    x_train, y_train, x_test, y_test = load_mnist_data()
-    model = mlp_mnist()
-
-    model.summary()
-    model.fit(x_train, y_train,
-            batch_size=32,
-            epochs=30,
-            validation_split=0.2,
-            callbacks=[early_stopping])
-    
-def mnits_evaluate():
-
-    model = train()
-
-    evaluate = model.evaluate(x_test, y_test, batch_size=32, verbose=0)
-
-    return evaluate
-
 
 # define Genetic Algorithm
 
