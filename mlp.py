@@ -3,7 +3,6 @@
 mlp class
 
 """
-
 import keras
 from keras.layers import Activation, Dropout, BatchNormalization, Dense, Input, Flatten
 from keras.models import Model
@@ -12,6 +11,7 @@ from keras.datasets import mnist
 from keras.utils.vis_utils import plot_model
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
+import matplotlib.pyplot as plt
 
 class MLP():
     def __init__(self, dense1=512, dense2=512,
@@ -53,6 +53,24 @@ class MLP():
                     }
         print(params)
         
+    def plot_history(history):
+        # 精度の履歴をプロット
+            plt.plot(history.history['acc'])
+            plt.plot(history.history['val_acc'])
+            plt.title('model accuracy')
+            plt.xlabel('epoch')
+            plt.ylabel('accuracy')
+            plt.legend(['acc', 'val_acc'], loc='lower right')
+            plt.show()
+
+            # Lossの履歴をプロット
+            plt.plot(history.history['loss'])
+            plt.plot(history.history['val_loss'])
+            plt.title('model loss')
+            plt.xlabel('epoch')
+            plt.ylabel('loss')
+            plt.legend(['loss', 'val_loss'], loc='lower right')
+            plt.show()
 
     def load_mnist_data(self):
         (x_train, y_train),(x_test, y_test) = mnist.load_data()
@@ -81,12 +99,18 @@ class MLP():
     def train(self):
         early_stopping = EarlyStopping(patience=0, verbose=1)
 
+        self.model.compile(loss='categorical_crossentropy',
+                            optimizer=Adan(),
+                            metrics=['accuracy'])
         self.model.summary()
-        self.model.fit(self.x_train, self.y_train,
+
+        history = self.model.fit(self.x_train, self.y_train,
                 batch_size=self.batch_size,
                 epochs=self.epochs,
                 validation_split=self.validation_split,
                 callbacks=[early_stopping])
+
+        self.plot_history(history)
         
     def mnits_evaluate():
         self.train()

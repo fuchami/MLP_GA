@@ -6,69 +6,10 @@
 
 import numpy as np
 import argparse
-import matplotlib.pyplot as plt
 import random
-
 from deap import base, creator, tools, algorithms
 
-
-def plot_history(history):
-    # 精度の履歴をプロット
-        plt.plot(history.history['acc'])
-        plt.plot(history.history['val_acc'])
-        plt.title('model accuracy')
-        plt.xlabel('epoch')
-        plt.ylabel('accuracy')
-        plt.legend(['acc', 'val_acc'], loc='lower right')
-        plt.show()
-
-        # Lossの履歴をプロット
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-        plt.title('model loss')
-        plt.xlabel('epoch')
-        plt.ylabel('loss')
-        plt.legend(['loss', 'val_loss'], loc='lower right')
-        plt.show()
-
-# define Genetic Algorithm
-
-#creator
-creator.create('FitnessMax', base.Fitness, weights=(-1.0,))
-creator.create('Individual', list, fitness= creator.FitnessMax)
-
-# defining attributes for individual
-toolbox = base.Toolbox()
-
-# neuron size 
-toolbox.register("dense1", random.choice, (64, 128, 256, 512, 1024))
-toolbox.register("dense2", random.choice, (64, 128, 256, 512, 1024))
-
-# dropout late
-toolbox.register("drop1", random.uniform, 0.0, 0.5)
-toolbox.register("drop2", random.uniform, 0.0, 0.5)
-
-# trainig
-toolbox.register("batch_size", random.choice, (10, 100, 500))
-toolbox.register("epochs", random.choice, (10, 30, 50, 100))
-toolbox.register("validation_split", random.uniform, 0.0, 0.6)
-
-# registar attributes to individual
-toolbox = register('individual', tools.initCycle, creator.Individual,
-                    (toolbox.dense1, toolbox.dense2,
-                     toolbox.drop1, toolbox.drop2,
-                     toolbox.batch_size, toolbox.epochs, toolbox.validation_split),
-                     n = 1)
-
-# individual to pupolation
-toolbox.register('population', toolbox.initRepeat, list, toolbox.individual)
-
-# evolution
-toolbox.register('mate', tools.cxTwoPoint)
-toolbox.register('mutate', tools.mutFlipBit, indpb = 0.05)
-toolbox.register('select', tools.selTournament, tournsizee=3)
-toolbox.register('evaluate', run_mnist)
-
+import mlp
 
 def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
     random.seed(64)
@@ -133,7 +74,64 @@ def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
     print("Best individual is %s %s " % (best_ind, best_ind.fitness.values))
     return best_ind
 
+def run_mlp(bounds):
+    _mlp = mlp.MLP(dense1=bounds[0],
+                    dense2=bounds[1],
+                    drop1=bounds[2],
+                    drop2=bounds[3],
+                    batch_size=bounds[4]
+                    epochs=bounds[5],
+                    validation_split=bounds[6]
+                    )
+
+    mnist_evaluation = _mlp.mnist_evaluate()
+    print(mnist_evaluation)
+    
+    return mnist_evaluation[0],
+    
+def main():
+
+    # define Genetic Algorithm
+    #creator
+    creator.create('FitnessMax', base.Fitness, weights=(-1.0,))
+    creator.create('Individual', list, fitness= creator.FitnessMax)
+
+    # defining attributes for individual
+    toolbox = base.Toolbox()
+
+    # neuron size 
+    toolbox.register("dense1", random.choice, (64, 128, 256, 512, 1024))
+    toolbox.register("dense2", random.choice, (64, 128, 256, 512, 1024))
+
+    # dropout late
+    toolbox.register("drop1", random.uniform, 0.0, 0.5)
+    toolbox.register("drop2", random.uniform, 0.0, 0.5)
+
+    # trainig
+    toolbox.register("batch_size", random.choice, (10, 100, 500))
+    toolbox.register("epochs", random.choice, (10, 30, 50, 100))
+    toolbox.register("validation_split", random.uniform, 0.0, 0.6)
+
+    # registar attributes to individual
+    toolbox = register('individual', tools.initCycle, creator.Individual,
+                        (toolbox.dense1, toolbox.dense2,
+                        toolbox.drop1, toolbox.drop2,
+                        toolbox.batch_size, toolbox.epochs, toolbox.validation_split),
+                        n = 1)
+
+    # individual to pupolation
+    toolbox.register('population', toolbox.initRepeat, list, toolbox.individual)
+
+    # evolution
+    toolbox.register('mate', tools.cxTwoPoint)
+    toolbox.register('mutate', tools.mutFlipBit, indpb = 0.05)
+    toolbox.register('select', tools.selTournament, tournsizee=3)
+    toolbox.register('evaluate', run_mlp)
+
+
+
 
 if __name__ == '__main__':
+    main()
 
 
