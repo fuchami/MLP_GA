@@ -10,7 +10,7 @@ from keras.optimizers import SGD, Adam
 from keras.datasets import mnist
 from keras.utils.vis_utils import plot_model
 from keras.utils import np_utils
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, CSVLogger
 import matplotlib.pyplot as plt
 
 class MLP():
@@ -125,6 +125,7 @@ class MLP():
 
     def train(self):
         early_stopping = EarlyStopping(patience=0, verbose=1)
+        csv_logger = CSVLogger('training.log', separator=',', append=True)
 
         self.model.compile(loss='categorical_crossentropy',
                             optimizer=self.opt,
@@ -137,7 +138,7 @@ class MLP():
                 epochs=70,
                 validation_split=self.validation_split,
                 verbose=0,
-                callbacks=[early_stopping])
+                callbacks=[early_stopping, csv_logger])
 
         #self.plot_history(history)
         
