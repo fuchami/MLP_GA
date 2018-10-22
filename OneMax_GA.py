@@ -26,15 +26,15 @@ toolbox.register("attr_bool", random.randint, 0, 1)
 # 個体を生成する関数を定義(Individualクラスでattr_boolの値を100個もつ)
 toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, 100)
 # 集団を生成する関数を定義(個体をもつリスト)
-toolbox.registert("population", tools.initRepeat, list, toolbox.individual)
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 def evalOneMax(individual):
-    return sum(individual)
+    return sum(individual),
 
 # 評価関数を登録
 toolbox.register("evaluate", evalOneMax)
 # 交叉関数を定義(2点交叉)
-toolbox.register("mate", tool.cxTwoPoint)
+toolbox.register("mate", tools.cxTwoPoint)
 # 変異関数を定義(ビット反転，変異隔離が5%)
 toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
 # 選択関数を定義(トーナメント選択，tournsizeはトーナメントの数?)
@@ -49,11 +49,10 @@ if __name__ == '__main__':
     print("進化計算")
 
     # 初期集団の個体を評価する
-    fitnesses = list(map(toolbox.evaluate, po))
-
-    for ind, fit in zip(pop, fitnesses): # zipは複数変数の同時ループ
+    fitnesses = list(map(toolbox.evaluate, pop))
+    for ind, fit in zip(pop, fitnesses):  # zipは複数変数の同時ループ
         # 適合性をセットする
-        ind.fitness.value = fit
+        ind.fitness.values = fit 
 
     print(" %i の個体を評価 " % len(pop))
 
@@ -74,20 +73,20 @@ if __name__ == '__main__':
             if random.random() < CXPB:
                 toolbox.mate(child1, child2)
                 # 交叉された個体の適応度を削除する
-                del child1.fitness.value
-                del child2.fitness.value
+                del child1.fitness.values
+                del child2.fitness.values
 
         """ 変異 """
         for mutant in offspring:
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
-                del mutant.fitness.value
+                del mutant.fitness.values
         
         # 適応度か計算されてない個体を集めて適応度を計算
-        invalid_ind = [ind for ind in offspring if ind.fitness.valid]
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitnesses.value = fit
+            ind.fitness.values = fit
         
         print(" %i の個体を評価 " % len(invalid_ind))
 
@@ -95,7 +94,7 @@ if __name__ == '__main__':
         pop[:] = offspring
 
         # すべての個体の適応度を配列にする
-        fits = [ind.fitness.value(0) for ind in pop]
+        fits = [ind.fitness.values[0] for ind in pop]
 
         length = len(pop)
         mean   = sum(fits) / length
