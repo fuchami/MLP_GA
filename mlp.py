@@ -18,7 +18,7 @@ class MLP():
                 drop1=0.3, drop2=0.2,
                 batch_size=12,
                 activation='relu',
-                optimizer='Adam'):
+                opt='Adam'):
         
         self.dense1 = dense1
         self.dense2 = dense2
@@ -31,13 +31,13 @@ class MLP():
         if opt == 'SGD1':
             print("optimizer is SGD lr = 0.01")
             self.opt = SGD(lr=0.01)
-        elif str == 'SGD1':
+        elif opt == 'SGD1':
             print("optimizer is SGD lr = 0.001")
             self.opt = SGD(lr=0.001)
-        elif str == 'Adam':
+        elif opt == 'Adam':
             print("optimizer is Adam")
             self.opt = Adam()
-        elif 
+        else: 
             print("Oops!")
 
 

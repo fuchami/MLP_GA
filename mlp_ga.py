@@ -116,7 +116,7 @@ def run_mlp(bounds):
                     drop2=bounds[3],
                     batch_size=bounds[4],
                     activation=bounds[5],
-                    optimizer=bounds[6]
+                    opt=bounds[6]
                     )
 
     mnist_evaluation = _mlp.mlp_evaluate()
@@ -152,7 +152,7 @@ toolbox.register("optimizer", random.choice, ('SGD1', 'SGD2', 'Adam'))
 toolbox.register('individual', tools.initCycle, creator.Individual,
                     (toolbox.dense1, toolbox.dense2,
                     toolbox.drop1, toolbox.drop2,
-                    toolbox.batch_size, toolbox.activation, toolbox.validation_split),
+                    toolbox.batch_size, toolbox.activation, toolbox.optimizer),
                     n = 1)
 
 # individual to pupolation
