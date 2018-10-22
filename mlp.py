@@ -18,7 +18,7 @@ class MLP():
                 drop1=0.3, drop2=0.2,
                 batch_size=12,
                 activation='relu',
-                validation_split=0.1):
+                optimizer='Adam'):
         
         self.dense1 = dense1
         self.dense2 = dense2
@@ -26,7 +26,20 @@ class MLP():
         self.drop2  = drop2
         self.activation = activation
         self.batch_size = batch_size
-        self.validation_split = validation_split
+        self.validation_split = 0.2
+
+        if opt == 'SGD1':
+            print("optimizer is SGD lr = 0.01")
+            self.opt = SGD(lr=0.01)
+        elif str == 'SGD1':
+            print("optimizer is SGD lr = 0.001")
+            self.opt = SGD(lr=0.001)
+        elif str == 'Adam':
+            print("optimizer is Adam")
+            self.opt = Adam()
+        elif :
+            print("Oops!")
+
 
         # load mnist data
         print(" load mnist data")
@@ -49,7 +62,8 @@ class MLP():
                     self.drop1,
                     self.drop2,
                     self.activation,
-                    self.batch_size
+                    self.batch_size,
+                    self.opt
         )
         print(params)
         
@@ -114,7 +128,7 @@ class MLP():
         early_stopping = EarlyStopping(patience=0, verbose=1)
 
         self.model.compile(loss='categorical_crossentropy',
-                            optimizer=SGD(),
+                            optimizer=self.opt,
                             metrics=['accuracy'])
         self.model.summary()
 
@@ -122,6 +136,7 @@ class MLP():
                 batch_size=self.batch_size,
                 epochs=70,
                 validation_split=self.validation_split,
+                verbose=0,
                 callbacks=[early_stopping])
 
         #self.plot_history(history)

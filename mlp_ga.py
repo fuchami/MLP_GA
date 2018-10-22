@@ -116,7 +116,7 @@ def run_mlp(bounds):
                     drop2=bounds[3],
                     batch_size=bounds[4],
                     activation=bounds[5],
-                    validation_split=bounds[6]
+                    optimizer=bounds[6]
                     )
 
     mnist_evaluation = _mlp.mlp_evaluate()
@@ -146,7 +146,7 @@ toolbox.register("drop2", random.uniform, 0.0, 0.5)
 # trainig
 toolbox.register("batch_size", random.choice, (16, 32, 64, 128, 256, 512))
 toolbox.register("activation", random.choice, ('sigmoid', 'relu'))
-toolbox.register("validation_split", random.uniform, 0.0, 0.6)
+toolbox.register("optimizer", random.choice, ('SGD1', 'SGD2', 'Adam'))
 
 # registar attributes to individual
 toolbox.register('individual', tools.initCycle, creator.Individual,
