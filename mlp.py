@@ -37,7 +37,7 @@ class MLP():
         elif str == 'Adam':
             print("optimizer is Adam")
             self.opt = Adam()
-        elif :
+        elif 
             print("Oops!")
 
 
