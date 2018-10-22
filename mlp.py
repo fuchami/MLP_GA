@@ -31,7 +31,7 @@ class MLP():
         if opt == 'SGD1':
             print("optimizer is SGD lr = 0.01")
             self.opt = SGD(lr=0.01)
-        elif opt == 'SGD1':
+        elif opt == 'SGD2':
             print("optimizer is SGD lr = 0.001")
             self.opt = SGD(lr=0.001)
         elif opt == 'Adam':
