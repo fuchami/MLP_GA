@@ -49,21 +49,20 @@ class MLP():
         self.model = self.mlp_model()
 
         params = """
-        validation_split:\t{0}
+        optimizer:\t{0}
         dense1:\t{1}
         dense2:\t{2}
         drop1:\t{3}
         drop2:\t{4}
         activation:\t{5}
         batch_size:\{6}
-        """.format(self.validation_split,
+        """.format(self.opt,
                     self.dense1,
                     self.dense2,
                     self.drop1,
                     self.drop2,
                     self.activation,
-                    self.batch_size,
-                    self.opt
+                    self.batch_size
         )
         print(params)
         
