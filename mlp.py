@@ -125,7 +125,7 @@ class MLP():
 
     def train(self):
         early_stopping = EarlyStopping(patience=0, verbose=1)
-        csv_logger = CSVLogger('training.log', separator=',', append=True)
+        csv_logger = CSVLogger('training_log.csv', separator=',', append=True)
 
         self.model.compile(loss='categorical_crossentropy',
                             optimizer=self.opt,
