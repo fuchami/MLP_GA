@@ -12,7 +12,7 @@
 - mlp.py
     - MLPクラス model.pyから呼び出す
 - OneMax_GA.py
-    - GAのサンプルコード．OneMax問題をGAで解くスクリプト
+    - GAのサンプルコード:OneMax問題をGAで解くスクリプト
 
 
 # Usage
