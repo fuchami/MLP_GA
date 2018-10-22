@@ -130,6 +130,7 @@ class MLP():
                             optimizer=self.opt,
                             metrics=['accuracy'])
         self.model.summary()
+        plot_model(self.model, to_file='./mlp.png', show_layer_names=True, show_shapes=True)
 
         history = self.model.fit(self.x_train, self.y_train,
                 batch_size=self.batch_size,
