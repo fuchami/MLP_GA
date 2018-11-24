@@ -8,7 +8,7 @@ import argparse
 import random
 from deap import base, creator, tools, algorithms
 
-#import conv3d
+import conv3d
 
 def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
     random.seed(64)
@@ -79,9 +79,63 @@ def genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=5):
     return best_ind
 
 
-def run_conv3d():
+def run_conv3d(bounds):
+    _conv3d = conv3d.Conv3DNet(conv1=bounds[0],
+                                conv2=bounds[1],
+                                conv3=bounds[2],
+                                conv4=bounds[3],
+                                conv5=bounds[4],
+                                dense1=bounds[5],
+                                dense2=bounds[6],
+                                dropout=bounds[7],
+                                bn1=bounds[8],
+                                bn2=bounds[9],
+                                batch_size=bounds[10],
+                                opt=bounds[11]
+                                )
+    conv3d_evaluation = _conv3d.conv3d_evaluate()
 
-def main():
+""" define Genetic Algorithm """
 
-if __name__ == "__main__":
-    main()
+# 適応度クラス作成
+creator.create('FitnessMax', base.Fitness, weights=(-1.0,))
+creator.create('Individual', list, fitness=creator.FitnessMax)
+
+# define attributes for individual
+toolbox = base.Toolbox()
+
+# 各パラメータを生成する関数を定義
+
+# 畳込み層のフィルタサイズ
+toolbox.register("conv1", random.choice, (8, 16, 32, 64, 128, 256, 512))
+toolbox.register("conv2", random.choice, (8, 16, 32, 64, 128, 256, 512))
+toolbox.register("conv3", random.choice, (8, 16, 32, 64, 128, 256, 512))
+toolbox.register("conv4", random.choice, (8, 16, 32, 64, 128, 256, 512))
+toolbox.register("conv5", random.randint, 0, 1)
+
+toolbox.register("dense1", random.choice, (16, 32, 64, 128, 256, 512, 1024))
+toolbox.register("dense2", random.choice, (16, 32, 64, 128, 256, 512, 1024))
+
+toolbox.register("dropout", random.uniform, 0.0, 0.8)
+toolbox.register("bn1", random.randint, 0, 1)
+toolbox.register("bn2", random.randint, 0, 1)
+
+toolbox.register("batch_size", random.choice, (8, 16, 32, 64, 128))
+toolbox.register("opt", random.choice, ('sgd', 'rmsprop', 'adam'))
+
+# registar attributes to individual
+toolbox.register('individual', tools.initCycle, creator.Individual,
+                (toolbox.conv1, toolbox.conv2, toolbox.conv3, toolbox.conv4, toolbox.conv5,
+                toolbox.dense1, toolbox.dense2,
+                toolbox.dropout, toolbox.bn1, toolbox.bn2,
+                toolbox.batch_size, toolbox.opt),
+                n=1)
+
+# individual to population
+toolbox.register('population', tools.initRepeat, list, toolbox.individual)
+
+toolbox.register('mate', tools.cxTwoPoint)
+toolbox.register('select', tools.selTournament, tournsize=3)
+toolbox.register('evaluate', run_conv3d)
+
+best_int = genAlg(population=5, CXPB=0.5, MUTPB=0.2, NGEN=10)
