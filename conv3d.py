@@ -38,9 +38,9 @@ class Conv3DNet():
             print("optimizer is Adam")
             self.opt = Adam()
 
-
         """ load data """
         print("load data")
+        self.X_train, self.X_valid, self.Y_train, self.Y_valid = load.load_csv_data()
 
         """ build 3dconv-net model """
         self.model = self.conv3_model()
@@ -73,9 +73,6 @@ class Conv3DNet():
             )
         print(params)
 
-    def load(self):
-        print("load csv file")
-        
 
     def conv3_model(self):
         # shape = (seqlength, imgsize, imgsize, channels)
@@ -120,7 +117,15 @@ class Conv3DNet():
                             metrict=[tools.f_score])
         self.model.summary()
 
+        self.model.fit(self.X_train, self.Y_train,
+                batch_size=self.batchsize,
+                epochs=50,
+                callbacks=[early_stopping],
+                validation_data=(self.X_valid, self.Y_valid))
+
     def conv3d_evaluate(self):
         self.train()
+        evaluate = self.model.evaluate(self.X_valid, self.Y_valid,
+                                        batch_size=self.batchsize, verbose=0)
 
-        return
+        return evaluate

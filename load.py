@@ -71,23 +71,24 @@ class ImageDataGenerator(object):
                         self.reset()
                         yield X_train, Y_train
 
-def load_csv_data(args):
+def load_csv_data():
     X_data = []
     Y_data = []
     X = []
     Y = []
-    seq_length = args.seqlength
-    strides = args.strides
+    seq_length = 10
+    strides = 7 
+    datasetpath = ''
 
     # load csv file
-    with open(args.datasetpath, 'r') as f:
+    with open(datasetpath, 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
 
         for row in reader:
             Y_data.append(int(row[1]))
 
-            img = load_img(row[0], target_size=(args.imgsize, args.imgsize))
+            img = load_img(row[0], target_size=(64, 64))
             img_array = img_to_array(img)
             x = (img_array/255.).astype(np.float32)
             #print("x.shape", x.shape)
@@ -111,7 +112,7 @@ def load_csv_data(args):
             Y.append(0)
     
     # convert np.array
-    X = np.array(X).reshape(len(X), seq_length, args.imgsize, args.imgsize, 3)
+    X = np.array(X).reshape(len(X), seq_length, 64, 64, 3)
     Y = np.array(Y).reshape(len(Y), 1)
     print("convert!!!!!!!!!!!!")
     print (X.shape)
