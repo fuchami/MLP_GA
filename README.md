@@ -65,9 +65,12 @@ Non-trainable params: 0
     - GA(遺伝的アルゴリズム)を用いてMLPの最適モデルを導出する
 - mlp.py
     - MLPクラス model.pyから呼び出す
+- conv3d_ga.py
+    - GAを使って3D-ConvNetの最適モデルを導出する
+- conv3d.py
+    - conv3DNetクラス
 - OneMax_GA.py
     - GAのサンプルコード:OneMax問題をGAで解くスクリプト
-
 
 # Usage
 
